@@ -1,0 +1,158 @@
+{% extends 'station/base.html' %}
+
+{% block content-header %}
+<div class="card-header">
+    <div class="card-tools">
+        <a href="#" class="btn btn-outline-primary">Print</a>
+        <a href="{% url 'station:station-update' object.id %}" class="btn btn-outline-warning">
+            <i class="fas fa-edit">Edit</i>
+        </a>
+        <a href="{% url 'station:station-delete' object.id %}" class="btn btn-outline-danger">
+            <i class="fas fa-times">Delete</i>
+        </a>
+    </div>
+</div>
+{% endblock content-header %}
+
+{% block content %}
+<div class="row">
+    <div class="col-sm-12">
+        <div>
+            <div class="form-group border-bottom row">
+                <label class="col">
+                    Station ID
+                </label>
+                <div class="col">
+                    {{ object.station_id }}
+                </div>
+            </div>
+            <div class="form-group border-bottom row">
+                <label class="col">
+                    Station Name
+                </label>
+                <div class="col">
+                    {{ object.name }}
+                </div>
+            </div>
+            <div class="form-group border-bottom row">
+                <label class="col">
+                    Station Type
+                </label>
+                <div class="col">
+                    {{ object.station_type }}
+                </div>
+            </div>
+            <div class="form-group border-bottom row">
+                <label class="col">
+                    Begin Date
+                </label>
+                <div class="col">
+                    {{ object.begin_date }}
+                </div>
+            </div>
+
+            <div class="form-group border-bottom row">
+                <label class="col">
+                    End Date
+                </label>
+                <div class="col">
+                    {{ object.end_date}}
+                </div>
+            </div>
+
+            <div class="form-group border-bottom row">
+                <label class="col">
+                    Region
+                </label>
+                <div class="col">
+                    {{ object.region }}
+                </div>
+            </div>
+            <div class="form-group border-bottom row">
+                <label class="col">
+                    Zone
+                </label>
+                <div class="col">
+                    {{ object.zone }}
+                </div>
+            </div>
+            <div class="form-group border-bottom row">
+                <label class="col">
+                    Woreda
+                </label>
+                <div class="col">
+                    {{ object.woreda }}
+                </div>
+            </div>
+
+            <div class="form-group border-bottom row">
+                <label class="col">
+                    Basin
+                </label>
+                <div class="col">
+                    {{ object.basin}}
+                </div>
+            </div>
+
+            <div class="form-group border-bottom row">
+                <label class="col">
+                    MSC
+                </label>
+                <div class="col">
+                    {{ object.msc }}
+                </div>
+            </div>
+            <div class="form-group border-bottom row">
+                <label class="col">
+                    Geography one
+                </label>
+                <div class="col">
+                    {{ object.geography_1 }}
+                </div>
+            </div>
+            <div class="form-group border-bottom row">
+                <label class="col">
+                    Longitude
+                </label>
+                <div class="col">
+                    {{ object.longitude }}
+                </div>
+            </div>
+
+            <div class="form-group border-bottom row">
+                <label class="col">
+                    Geography two
+                </label>
+                <div class="col">
+                    {{ object.geography_2}}
+                </div>
+            </div>
+
+            <div class="form-group border-bottom row">
+                <label class="col">
+                    Latitude
+                </label>
+                <div class="col">
+                    {{ object.latitude }}
+                </div>
+            </div>
+            <div class="form-group border-bottom row">
+                <label class="col">
+                    Elevation
+                </label>
+                <div class="col">
+                    {{ object.elevation }}
+                </div>
+            </div>
+            <div class="form-group border-bottom row">
+                <label class="col">
+                    Note
+                </label>
+                <div class="col">
+                    {{ object.note }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}

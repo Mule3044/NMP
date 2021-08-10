@@ -1,0 +1,323 @@
+{% extends 'station/base.html' %}
+{% block title %}Station{% endblock title %}
+{% block header %}
+
+<style>
+    .ol-popup {
+        position: absolute;
+        background-color: white;
+        -webkit-filter: drop-shadow(0 1px 4px rgba(0, 0, 0, 0.2));
+        filter: drop-shadow(0 1px 4px rgba(0, 0, 0, 0.2));
+        padding: 15px;
+        border-radius: 10px;
+        border: 1px solid #cccccc;
+        bottom: 12px;
+        left: -50px;
+        min-width: 180px;
+    }
+
+    .ol-popup:after,
+    .ol-popup:before {
+        top: 100%;
+        border: solid transparent;
+        content: " ";
+        height: 0;
+        width: 0;
+        position: absolute;
+        pointer-events: none;
+    }
+
+    .ol-popup:after {
+        border-top-color: white;
+        border-width: 10px;
+        left: 48px;
+        margin-left: -10px;
+    }
+
+    .ol-popup:before {
+        border-top-color: #cccccc;
+        border-width: 11px;
+        left: 48px;
+        margin-left: -11px;
+    }
+
+    .ol-popup-closer {
+        text-decoration: none;
+        position: absolute;
+        top: 2px;
+        right: 8px;
+    }
+
+    .ol-popup-closer:after {
+        content: "✖";
+    }
+</style>
+{% load static %}
+
+{% endblock %}
+{% block breadcrumb %}
+<a class="btn btn-primary" href="{% url 'station:station-create' %}"><i class="fas fa-plus"></i> New station</a>
+{% endblock breadcrumb %}
+
+{% block content %}
+<div class="row">
+    <div class="col-sm-6">
+        <div class="table-responsive">
+            <table id="stationtable" class="table table-bordered table-hover" data-page-length='100'>
+                <thead class="thead-light">
+                    <tr>
+                        <th>Name</th>
+                        <th>Region</th>
+                        <th>Zone</th>
+                        <th>Woreda</th>
+                        <th>Basin</th>
+                        <th>Station type</th>
+                        <th>Detail</th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                    {% for station in stations %}
+                    <tr class='clickable-row' data-href="{% url 'station:station-list' %}">
+                        <td>{{ station.name}}</td>
+                        <td>{{ station.region}}</td>
+                        <td>{{ station.zone}}</td>
+                        <td>{{ station.woreda}}</td>
+                        <td>{{ station.basin}}</td>
+                        <td>{{ station.station_type}}</td>
+                        <td>
+                            <a class="btn btn-info" href="{% url 'station:station-detail' station.pk %}"><i
+                                    class="fas fa-plus"></i>Detail</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="col-sm-6">
+        <div id="map"></div>
+        <div id="popup" class="ol-popup">
+            <a href="#" id="popup-closer" class="ol-popup-closer"></a>
+            <div id="popup-content"></div>
+        </div>
+        <div id="wrapper">
+            <div id="location"></div>
+            <div id="scale">
+            </div>
+            <div id="nodelist">
+                <em>Click on the map to get feature info</em>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    var format = 'image/png';
+    var bounds = [32.99993896484375, 3.3220989704134354,
+        47.98617935180674, 14.89995765686031];
+
+    var region = new ol.layer.Vector({
+        source: new ol.source.Vector({
+            url: 'http://localhost:8080/geoserver/SID/wfs?service=WFS&version=1.0.0&request=GetFeature&typeName=SID:ETH_adm1&outputFormat=application/json',
+            format: new ol.format.GeoJSON()
+        }),
+        style: new ol.style.Style({
+            stroke: new ol.style.Stroke({
+                color: '#ff4000',
+                width: 2
+            }),
+            fill: new ol.style.Fill({
+                color: 'transparent'
+            })
+        })
+
+    });
+    var zone = new ol.layer.Vector({
+        source: new ol.source.Vector({
+            url: 'http://localhost:8080/geoserver/SID/wfs?service=WFS&version=1.0.0&request=GetFeature&typeName=SID:ETH_adm2&outputFormat=application/json',
+            format: new ol.format.GeoJSON()
+        }),
+        style: new ol.style.Style({
+            stroke: new ol.style.Stroke({
+                color: '#0a9fee',
+                width: 2
+            }),
+            fill: new ol.style.Fill({
+                color: 'transparent'
+            })
+        })
+
+    });
+    var woreda = new ol.layer.Vector({
+        source: new ol.source.Vector({
+            url: 'http://localhost:8080/geoserver/SID/wfs?service=WFS&version=1.0.0&request=GetFeature&typeName=SID:ETH_adm3&outputFormat=application/json',
+            format: new ol.format.GeoJSON()
+        }),
+        style: new ol.style.Style({
+            stroke: new ol.style.Stroke({
+                color: '#36bae4',
+                width: 2
+            }),
+            fill: new ol.style.Fill({
+                color: 'transparent'
+            })
+        })
+
+    });
+    var osmLayer = new ol.layer.Tile({
+        source: new ol.source.OSM()
+    });
+    var projection = new ol.proj.Projection({
+        code: 'EPSG:4326',
+        units: 'degrees',
+        axisOrientation: 'neu',
+        global: true
+    });
+    var map = new ol.Map({
+        target: 'map',
+        layers: [osmLayer, region, zone, woreda],
+        view: new ol.View({
+            projection: projection
+        })
+    });
+
+    var container = document.getElementById('popup');
+    var content = document.getElementById('popup-content');
+    var closer = document.getElementById('popup-closer');
+
+    /**
+     * Create an overlay to anchor the popup to the map.
+     */
+    var overlay = new ol.Overlay(/** @type {olx.OverlayOptions} */({
+        element: container,
+        autoPan: true,
+        autoPanAnimation: {
+            duration: 250
+        }
+    }));
+    closer.onclick = function () {
+        overlay.setPosition(undefined);
+        closer.blur();
+        return false;
+    };
+    map.addOverlay(overlay);
+
+    map.getView().on('change:resolution', function (evt) {
+        var resolution = evt.target.get('resolution');
+        var units = map.getView().getProjection().getUnits();
+        var dpi = 25.4 / 0.28;
+        var mpu = ol.proj.METERS_PER_UNIT[units];
+        var scale = resolution * mpu * 39.37 * dpi;
+        if (scale >= 9500 && scale <= 950000) {
+            scale = Math.round(scale / 1000) + "K";
+        } else if (scale >= 950000) {
+            scale = Math.round(scale / 1000000) + "M";
+        } else {
+            scale = Math.round(scale);
+        }
+        document.getElementById('scale').innerHTML = "Scale = 1 : " + scale;
+    });
+    map.getView().fit(bounds, map.getSize());
+    map.on('singleclick', function (evt) {
+        var feature = map.forEachFeatureAtPixel(evt.pixel,
+            function (feature) {
+                return feature;
+            });
+        if (feature) {
+            var coordinate = feature.getGeometry().getCoordinates();
+
+            var items = '';
+            items = '<br/><table style ="background-color:#ff4000;"><tr><th>Station id</th><th>Name</th><th>Region</th><th>Zone</th><th>Woreda</th><th>Station Type</th></tr>';
+            if (feature.get('name')) {
+                items += "<tr><td>" + feature.get('station_id') + "</td>" + "<td>" + feature.get('name') + "</td><td>" + feature.get('region') + "</td>" + "<td>" + feature.get('zone') + "</td>" + "<td>" + feature.get('woreda') + "</td>" + "<td>" + feature.get('station_type') + "</td></tr>";
+            }
+            items += '</table><br/><br/><br/>';
+            content.innerHTML = items;
+            overlay.setPosition(coordinate);
+        }
+    });
+
+    var icons = [];
+    {% for item in stations %}
+    var lon = {{ item.longitude }};
+    var lat = {{ item.latitude }};
+    var iconFeature;
+    iconFeature = new ol.Feature({ geometry: new ol.geom.Point([lon, lat]) });
+
+    var iconFeature = new ol.Feature({
+        geometry: new ol.geom.Point([lon, lat]),
+        id: '{{ item.pk }}',
+        station_id: '{{item.station_id}}',
+        name: '{{ item.name }}',
+        region: '{{ item.region }}',
+        zone: '{{ item.zone }}',
+        woreda: '{{ item.woreda }}',
+        station_type: '{{ item.station_type }}'
+    });
+    // this is what set's the ID:
+    iconFeature.setId('{{ item.pk }}');
+
+    icons.push(iconFeature);
+
+    {% endfor %}
+
+    var vectorSource = new ol.source.Vector({
+        features: icons
+    });
+
+    var pointLayer = new ol.layer.Vector({
+        source: vectorSource,
+        style: new ol.style.Style({
+
+            image: new ol.style.Circle({
+                radius: 6,
+                fill: new ol.style.Fill({
+                    color: '#ff3333'
+                })
+            })
+        })
+    });
+
+    map.addLayer(pointLayer);
+
+    // function showStationOnMap(id) {
+
+    //     var previousSelectedFeature = selectedfeature;
+    //     if (previousSelectedFeature) {
+    //         selectedfeature.setStyle(new ol.style.Style({
+
+    //             image: new ol.style.Circle({
+    //                 radius: 6,
+    //                 fill: new ol.style.Fill({
+    //                     color: '#0097aa'
+    //                 })
+    //             })
+    //         }));
+
+    //         pointLayer.getSource().addFeatures(previousSelectedFeature);
+    //     }
+    //     selectedfeature = pointLayer.getSource().getFeatureById(id)
+    //     selectedfeature.setStyle(new ol.style.Style({
+
+    //         image: new ol.style.Circle({
+    //             radius: 17,
+    //             fill: new ol.style.Fill({
+    //                 color: '#880032'
+    //             })
+    //         })
+    //     }));
+    //     pointLayer.getSource().addFeatures(selectedfeature);
+    //     // map.getView().fit(pointLayer.getSource().getExtent(), (map.getSize()));
+    // }
+</script>
+{% endblock content %}
+
+
+{% block morejs %}
+<script>
+    $('#stationtable').DataTable({
+    });
+</script>
+
+{% endblock morejs %}

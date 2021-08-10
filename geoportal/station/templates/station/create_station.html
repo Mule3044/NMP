@@ -1,0 +1,200 @@
+{% extends 'station/base.html' %}
+{% block title %}Add a New station{% endblock %}
+
+{% block content %}
+
+<div class="container-fluid map-container">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <h3>Create New Incident</h3>
+                    {% if error_message %}
+                    <p><strong>{{ error_message }}</strong></p>
+                    {% endif %}
+                    <form class="form-horizontal" role="form" action="" method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="form-group row">
+                            <label class="col-sm-3 col-form-label" for="id_station_id">
+                                Station id
+                            </label>
+                            <div class="col-sm-9">
+                                <input type="text" name="station_id" maxlength="255" class="form-control" required=""
+                                    id="id_station_id">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-3 col-form-label" for="id_begin_date">
+                                Begin date
+                            </label>
+                            <div class="col-sm-9">
+                                <input type="date" name="begin_date" value="date" class="form-control" required=""
+                                    id="id_begin_date">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-3 col-form-label" for="id_end_date">
+                                End date
+                            </label>
+                            <div class="col-sm-9">
+                                <input type="date" name="end_date" class="form-control" required="" id="id_end_date">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-3 col-form-label" for="id_name">
+                                Name
+                            </label>
+                            <div class="col-sm-9">
+                                <input type="text" name="name" maxlength="255" class="form-control" required=""
+                                    id="id_name">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-3 col-form-label" for="id_region">
+                                Region
+                            </label>
+                            <div class="col-sm-9">
+                                <select name="region" class="form-control" required="" id="id_region">
+                                    <option value="" selected="">Select region</option>
+                                    {% for item in woreda_List %}
+                                    <option value="{{item.gid}}">{{item.woreda}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-3 col-form-label" for="id_zone">
+                                Zone
+                            </label>
+                            <div class="col-sm-9">
+                                <select name="zone" class="form-control" required="" id="id_zone">
+                                    <option value="" selected="">Select zone</option>
+                                    {% for item in woreda_List %}
+                                    <option value="{{item.gid}}">{{item.woreda}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-3 col-form-label" for="id_woreda">
+                                Woreda
+                            </label>
+                            <div class="col-sm-9">
+                                <select name="woreda" class="form-control" required="" id="id_woreda">
+                                    <option value="" selected="">Select woreda</option>
+                                    {% for item in woreda_List %}
+                                    <option value="{{item.gid}}">{{item.woreda}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-3 col-form-label" for="id_basin">
+                                Basin
+                            </label>
+                            <div class="col-sm-9">
+                                <select name="basin" class="form-control" required="" id="id_basin">
+                                    <option value="" selected="">Select Basin</option>
+                                    {% for basin_list in basinList %}
+                                    <option value="{{basin_list.id}}">{{basin_list.basin_name}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-3 col-form-label" for="id_station_type">
+                                Station type
+                            </label>
+                            <div class="col-sm-9">
+                                <select name="station_type" class="form-control" required="" id="id_station_type">
+                                    <option value="" selected="">Select Station type</option>
+                                    {% for item in stationTypeList %}
+                                    <option value="{{item.id}}">{{item.station_type}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-3 col-form-label" for="id_msc">
+                                Msc
+                            </label>
+                            <div class="col-sm-9">
+                                <select name="msc" class="form-control" required="" id="id_msc">
+                                    <option value="" selected="">Select msc</option>
+                                    {% for msc in mscList %}
+                                    <option value="{{msc.id}}">{{msc.msc_name}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-3 col-form-label" for="id_geography_1">
+                                Geography 1
+                            </label>
+                            <div class="col-sm-9">
+                                <input type="number" name="geography_1" step="any" class="form-control" required=""
+                                    id="id_geography_1">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-3 col-form-label" for="id_longitude">
+                                Longitude
+                            </label>
+                            <div class="col-sm-9">
+                                <input type="text" name="longitude" maxlength="255" class="form-control" required=""
+                                    id="id_longitude">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-3 col-form-label" for="id_geography_2">
+                                Geography 2
+                            </label>
+                            <div class="col-sm-9">
+                                <input type="number" name="geography_2" step="any" class="form-control" required=""
+                                    id="id_geography_2">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-3 col-form-label" for="id_latitude">
+                                Latitude
+                            </label>
+                            <div class="col-sm-9">
+                                <input type="text" name="latitude" maxlength="255" class="form-control" required=""
+                                    id="id_latitude">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-3 col-form-label" for="id_elevation">
+                                Elevation
+                            </label>
+                            <div class="col-sm-9">
+                                <input type="number" name="elevation" step="any" class="form-control" required=""
+                                    id="id_elevation">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-3 col-form-label" for="id_note">
+                                Note
+                            </label>
+                            <div class="col-sm-9">
+                                <textarea name="note" cols="40" rows="10" maxlength="500" class="form-control"
+                                    required="" id="id_note"></textarea>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-sm-offset-2 col-sm-12">
+                                <span class="text-danger small"></span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-sm-offset-2 col-sm-10">
+                                <button type="submit" class="btn btn-success">Submit</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

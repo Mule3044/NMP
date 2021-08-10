@@ -1,0 +1,29 @@
+{% extends "station/base.html" %}
+
+{% block title %}
+
+{% if object %}
+Update {{ object }}
+{% else %}
+Add new station
+{% endif %}
+
+{% endblock title %}
+
+
+{% block content %}
+
+<form action="" method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    {% include 'station/form_snippet.html' %}
+
+    {% if object %}
+    <input type="submit" class="btn btn-primary" value="Update Record">
+    {% else %}
+    <input type="submit" class="btn btn-primary" value="Add new station">
+    {% endif %}
+</form>
+
+
+{% endblock content %}
